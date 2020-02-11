@@ -1,0 +1,222 @@
+---
+title: "Stats"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Load packages
+```{r}
+
+library(lme4)
+library(LMERConvenienceFunctions)
+library(lmerTest)
+library(car)
+library(emmeans)
+library(multcomp)
+library(multcompView)
+library(vegan)
+
+```
+
+
+```{r}
+#Read file
+plants.2<- read.csv(file="plants.csr.csv", sep=",", header = TRUE)
+
+#------------Total establishment
+#=========================total establishment
+
+plants.2$log.total<-log(plants.2$percent.totals)
+
+total.mixed.log <- lmer(log.total~Prep*Seed+ (1|Block)
+                         ,data=plants.2)
+anova(total.mixed.log, ddf="Kenward-Roger")
+mcp.fnc(total.mixed.log)
+
+cld(emmeans(total.mixed.log,~Prep))
+
+#native establishment
+plants.2$log.nat<-log1p(plants.2$Natives)
+
+nat.mixed.log.nat <- lmer(log.nat~Prep*Seed+ (1|Block)
+                        ,data=plants.2)
+anova(nat.mixed.log.nat, ddf="Kenward-Roger")
+mcp.fnc(nat.mixed.log.nat)
+
+cld(emmeans(nat.mixed.log.nat,~Prep*Seed))
+
+#Richness
+
+plants.2$sq.rich<-sqrt(plants.2$Richness)
+
+#=====Model richness
+
+
+rich.mixed <- lmer(sq.rich~Prep*Seed+(1|Block),
+                                   data=plants.2)
+anova(rich.mixed, ddf="Kenward-Roger")
+mcp.fnc(rich.mixed)
+
+
+cld(emmeans(rich.mixed,~Prep*Seed))
+
+cld(emmeans(rich.mixed,~Seed))
+
+
+#=====Evenness
+
+plants.2$sqrt.ev<-sqrt(plants.2$evenness)
+
+ev.mixed.sq <- lmer(sqrt.ev~Prep*Seed+ (1|Block)
+                 ,data=plants.2)
+anova(ev.mixed.sq, ddf="Kenward-Roger")
+mcp.fnc(ev.mixed.sq)
+
+
+cld(emmeans(ev.mixed.sq,~Prep))
+
+#=====Diversity======
+
+div.mixed <- lmer(H~Prep*Seed+(1|Block/Seed),
+                                     data=plants.2)
+anova(div.mixed,ddf="Kenward-Roger")
+mcp.fnc(div.mixed)
+
+cld(emmeans(div.mixed,~Seed))
+
+cld(emmeans(div.mixed,~Prep))
+
+
+
+#======percent Volunteer
+
+plants.2$log.vol<-log(plants.2$Volunteer.per*100)
+
+vol.mixed.log <- lmer(log.vol~Prep*Seed+ (1|Block)
+                       ,data=plants.2)
+anova(vol.mixed.log, ddf="Kenward-Roger")
+mcp.fnc(vol.mixed.log)
+
+cld(emmeans(vol.mixed.log,~Seed))
+
+#======percent seeded
+plants.2$log.seed<-log1p(plants.2$Seeded.per*100)
+
+seed.mixed.log <- lmer(log.seed~Prep*Seed+ (1|Block)
+                      ,data=plants.2)
+anova(seed.mixed.log, ddf="Kenward-Roger")
+mcp.fnc(seed.mixed.log)
+
+#======percent native
+ 
+plants.2$log.nat<-log1p(plants.2$Native.per*100)
+
+nat.mixed.log <- lmer(log.nat~Prep*Seed+ (1|Block)
+                     ,data=plants.2)
+anova(nat.mixed.log, ddf="Kenward-Roger")
+mcp.fnc(nat.mixed.log)
+
+cld(emmeans(nat.mixed.log,~Seed))
+
+
+#======percent Exotics
+
+plants.2$log.Ex<-log(plants.2$Exotic.per*100)
+
+Ex.mixed.log <- lmer(log.Ex~Prep*Seed+ (1|Block)
+                     ,data=plants.2)
+anova(Ex.mixed.log, ddf="Kenward-Roger")
+mcp.fnc(Ex.mixed.log)
+
+cld(emmeans(Ex.mixed.log,~Seed))
+
+
+#===========Models based on functional groups===================
+
+
+#======percent Forbs
+
+plants.2$log.Forb<-log(plants.2$Forb.per*100)
+
+
+Forb.mixed.log <- lmer(log.Forb~Prep*Seed+ (1|Block)
+                      ,data=plants.2)
+anova(Forb.mixed.log, ddf="Kenward-Roger")
+mcp.fnc(Forb.mixed.log)
+
+
+cld(emmeans(Forb.mixed.log,~Prep))
+
+
+#======percent Grasss
+
+plants.2$log.Grass<-log1p(plants.2$Grass.per*100)
+
+
+Grass.mixed.log <- lmer(log.Grass~Prep*Seed+ (1|Block)
+                       ,data=plants.2)
+anova(Grass.mixed.log, ddf="Kenward-Roger")
+mcp.fnc(Grass.mixed.log)
+
+cld(emmeans(Grass.mixed.log,~Seed))
+
+
+#======percent Legumes
+
+plants.2$log.Legume<-log1p(plants.2$Legume.per*100)
+
+Legume.mixed.log <- lmer(log.Legume~Prep*Seed+ (1|Block)
+                        ,data=plants.2)
+anova(Legume.mixed.log, ddf="Kenward-Roger")
+mcp.fnc(Legume.mixed.log)
+
+cld(emmeans(Legume.mixed.log,~Prep))
+
+#csr
+plants.2$C.per<-plants.2$C/plants.2$percent.totals*100
+plants.2$R.per<-plants.2$R/plants.2$percent.totals*100
+plants.2$S.per<-plants.2$S/plants.2$percent.totals*100
+
+
+#C
+
+plants.2$log.C<-log(plants.2$C.per)
+
+
+C.mixed.log <- lmer(log.C~Prep*Seed+ (1|Block)
+                   ,data=plants.2)
+anova(C.mixed.log, ddf="Kenward-Roger")
+mcp.fnc(C.mixed.log)
+
+
+cld(emmeans(C.mixed.log,~Prep))
+
+
+
+#R
+
+plants.2$log.R<-log(plants.2$R.per)
+
+
+
+Rmixed.log<-lmer(log.R~Prep*Seed+ (1|Block)
+                 ,data=plants.2)
+
+anova(Rmixed.log, ddf="Kenward-Roger")
+mcp.fnc(Rmixed.log)
+
+#S
+plants.2$log.S<-log(plants.2$S.per)
+
+S.mixed.log <- lmer(log.S~Prep*Seed+ (1|Block)
+                   ,data=plants.2)
+anova(S.mixed.log, ddf="Kenward-Roger")
+mcp.fnc(S.mixed.log)
+
+
+```
+
+
