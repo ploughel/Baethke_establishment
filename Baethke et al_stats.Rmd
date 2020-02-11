@@ -216,6 +216,21 @@ S.mixed.log <- lmer(log.S~Prep*Seed+ (1|Block)
 anova(S.mixed.log, ddf="Kenward-Roger")
 mcp.fnc(S.mixed.log)
 
+#----multivariate stats
+names(plants.2)
+pc<- read.csv(file="Field data - CSV.csv", sep=",", header = TRUE)
+
+
+#split data frame to get diversity related information
+Treatments<-plants.2[,4:5]
+plants<-plants.2[,12:51]
+
+
+species.dist<-vegdist(plants)
+attach(Treatments)
+
+set.seed(123)
+adonis(species.dist ~ Prep*Seed)
 
 ```
 
